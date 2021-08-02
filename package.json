@@ -1,0 +1,18 @@
+{
+  "name": "image-server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start":"nodemon src/index.js"
+  },
+  "author": "Facundo Gimenez",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.2",
+    "mysql": "^2.18.1"
+  }
+}
