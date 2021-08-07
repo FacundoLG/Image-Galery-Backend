@@ -35,8 +35,25 @@ connection.connect(function(err){
     console.log('conected as id ' + connection.threadId)
 })
 //Routes
-app.get("/",(req,res) =>{
-    res.send("Work")
+app.post('/login',(req,res)=>{
+    const {username,password} = req.body
+    console.log({
+        message: "login try",
+        username,
+        password
+    })
+    connection.query('SELECT * FROM users WHERE name = ? AND password = ?',
+    [username,password],
+    (err,result) => {
+        if (err) {
+            res.status(500).send({error: "500"})
+        }
+        if(result.length > 0){
+            res.send(result) 
+        }else{
+            res.status(406).send({message:"Wrong combination"})
+        }
+    })
 })
 
 app.post('/register',(req,res) =>{
