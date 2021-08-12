@@ -12,6 +12,10 @@ app.listen(3001,(req,res) => {
 //Dotenv config
 const dotenv = require('dotenv')
 dotenv.config({path: '.env.development'})
+
+const bcrypt = require('bcryptjs')
+const rouds = 10
+
 //DB conecction
 var mysql = require('mysql')
 
@@ -42,14 +46,24 @@ app.post('/login',(req,res)=>{
         username,
         password
     })
-    connection.query('SELECT * FROM users WHERE name = ? AND password = ?',
-    [username,password],
+    connection.query('SELECT * FROM users WHERE name = ?',
+    [username],
     (err,result) => {
         if (err) {
             res.status(500).send({error: "500"})
         }
         if(result.length > 0){
-            res.send(result) 
+            bcrypt.compare(password,result[0].password,(err,response) => {
+                if(response){
+                    res.send({
+                        result,
+                        errorMessage:""    
+                    })
+                }
+                else{
+                    res.status(406).send({message:"Wrong combination"})
+                }
+            })
         }else{
             res.status(406).send({message:"Wrong combination"})
         }
@@ -59,18 +73,23 @@ app.post('/login',(req,res)=>{
 app.post('/register',(req,res) =>{
     const {username,email,password,userConfirmPassword} = req.body
     if(password !== userConfirmPassword){
-        res.status(400).send("Are not the same password")
+        res.status(400).send({message: "passwords are no equals"})
         return null
     
     }else{
-        connection.query("INSERT INTO users (name,email,password) VALUES (?,?,?)",
-        [username,email,password],
+
+        bcrypt.hash(password,rouds,(err,hash) =>{
+            if(err) res.status(400).send("poblemas chaval")
+            connection.query("INSERT INTO users (name,email,password) VALUES (?,?,?)",
+        [username,email,hash],
         (err,result) => {
             console.log(err)
             console.log(result)
             if(err) return'Error'
         res.send('All ok')
         })
+        })
+        
     }
     
 })
